@@ -55,7 +55,7 @@ elif menu == "2. Tense & Grammar":
         "Tense", "Tense วัดเรื่อง Passive Voice", "Tense คู่ (เว้น 1 คำ มีบริบทคู่)",
         "Comparison (ขั้นเท่า ขั้นกว่า ขั้นสุด)", "Conjunctions & Connectors",
         "Preposition", "Preposition (เวลา/สถานที่ in on at)", "Relative Pronoun",
-        "Relative Pronoun (ตอบ whom แต่ใช้ whose แทน)", "Relative Pronoun (ตอบ that แทน)",
+        "Relative Pronoun (ใช้ whose กรณีที่ข้างหน้าช่องว่างเป็นคน แล้วตัวเลือกมีทั้ง  whom whose)", "Relative Pronoun (ตอบ that แทน)",
         "If-clause (เว้นกริยาประโยคแรก)", "If-clause (เว้นกริยาประโยคหลัง)",
         "If-clause แบบ If อยู่ตรงกลาง", "Gerund", "Part of Speeches"
     ]
