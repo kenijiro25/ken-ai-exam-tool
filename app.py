@@ -57,7 +57,7 @@ elif menu == "2. Tense & Grammar":
         "Preposition", "Preposition (เวลา/สถานที่ in on at)", "Relative Pronoun",
         "Relative Pronoun (ใช้ whose กรณีที่ข้างหน้าช่องว่างเป็นคน แล้วตัวเลือกมีทั้ง  whom whose)", "Relative Pronoun (ตอบ that แทน)",
         "If-clause (เว้นกริยาประโยคแรก)", "If-clause (เว้นกริยาประโยคหลัง)",
-        "If-clause แบบ If อยู่ตรงกลาง", "Gerund", "Part of Speeches"
+        "If-clause แบบ If อยู่ตรงกลางแล้วถามคำกริยาข้างหน้าหรือข้างหลัง if", "Gerund", "Part of Speeches"
     ]
     
     inputs_tense = []
