@@ -30,5 +30,23 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
     if not context or not any(item['word'] for item in inputs):
         st.warning("กรุณาใส่บทสนทนาและเลือกคำอย่างน้อย 1 คำครับพี่เค็น")
     else:
-        st.info("กำลังส่งข้อมูลไปให้ Gemini และ Claude วิเคราะห์... (กรุณาต่อ Webhook ใน n8n)")
-        # ส่วนนี้เดี๋ยวเรามาต่อ URL Webhook ของ n8n กันครับ
+# วาง Test URL จาก n8n ของพี่แทนที่ลิงก์ข้างล่างนี้ครับ
+        WEBHOOK_URL = "ใส่_TEST_URL_จาก_N8N_ตรงนี้" 
+        
+        payload = {
+            "context": context,
+            "inputs": inputs
+        }
+        
+        try:
+            # ส่งข้อมูลไปหา n8n
+            response = requests.post(WEBHOOK_URL, json=payload)
+            if response.status_code == 200:
+                st.success("ส่งข้อมูลสำเร็จ! รอ AI สักครู่...")
+                # แสดงผลลัพธ์ที่ n8n ส่งกลับมา
+                st.write("---")
+                st.markdown(response.json().get("exam_text", "กำลังประมวลผล..."))
+            else:
+                st.error(f"Error: n8n ตอบกลับด้วยรหัส {response.status_code}")
+        except Exception as e:
+            st.error(f"เชื่อมต่อ n8n ไม่ได้: {e}")
