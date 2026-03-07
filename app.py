@@ -1,50 +1,48 @@
 import streamlit as st
-import requests
 
-st.set_page_config(page_title="P'Ken Exam Generator", layout="wide")
-st.title("💡 เครื่องมือสร้างข้อสอบ โดย พี่เค็น (GPT Edition)")
+st.set_page_config(page_title="P'Ken Prompt Generator", layout="wide")
+st.title("💡 เครื่องมือสร้าง Prompt ข้อสอบ โดย พี่เค็น")
+st.info("ใช้สำหรับสร้างคำสั่ง (Prompt) เพื่อเอาไปแปะใน ChatGPT/Claude ได้ทันที ไม่ต้องง้อ n8n ครับพี่!")
 
-context = st.text_area("1. วางบทสนทนาต้นฉบับที่นี่", height=250)
+# 1. รับบทสนทนา
+context = st.text_area("1. วางบทสนทนาต้นฉบับที่นี่", height=200, placeholder="วาง Conversation ต้นฉบับที่นี่...")
+
 st.divider()
 
-st.subheader("2. เลือกคำที่จะเจาะช่องว่าง")
+# 2. ส่วนเลือกคำและตำแหน่งเฉลย
+st.subheader("2. ตั้งค่ารายละเอียดข้อสอบ (5 ข้อ)")
 inputs = []
 cols = st.columns(5) 
+
 for i in range(5):
     with cols[i]:
         st.markdown(f"**ข้อที่ {i+1}**")
-        word = st.text_input(f"คำที่เลือก", key=f"w_{i}")
+        word = st.text_input(f"คำที่เลือก", key=f"w_{i}", placeholder="เช่น although")
         category = st.selectbox(f"วัดเรื่อง", ["Tense", "Vocabulary", "Idiom", "Manner", "Logic"], key=f"c_{i}")
-        inputs.append({"word": word, "type": category})
+        ans_key = st.selectbox(f"เฉลยข้อไหน", ["A", "B", "C", "D"], key=f"a_{i}")
+        inputs.append({"word": word, "type": category, "ans": ans_key})
 
 st.divider()
 
-if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_width=True):
+# 3. ส่วนสร้าง Prompt
+if st.button("🚀 สร้าง Prompt สำหรับก๊อบปี้", type="primary", use_container_width=True):
     if not context or not any(item['word'] for item in inputs):
-        st.warning("กรุณาใส่ข้อมูลให้ครบก่อนครับพี่เค็น")
+        st.warning("กรุณาใส่บทสนทนาและเลือกคำที่ต้องการเจาะช่องว่างด้วยครับพี่เค็น")
     else:
-        WEBHOOK_URL = "https://my-n8n-production-67b5.up.railway.app/webhook/create-exam" 
-        payload = {"context": context, "inputs": inputs}
+        # เริ่มต้นประกอบร่าง Prompt
+        final_prompt = "จงสร้างข้อสอบภาษาอังกฤษแบบ Multiple Choice จากบทสนทนานี้:\n\n"
+        final_prompt += f"--- บทสนทนา ---\n{context}\n---------------\n\n"
+        final_prompt += "เงื่อนไขการสร้างข้อสอบมีดังนี้:\n"
         
-        with st.status("🤖 GPT กำลังปั่นข้อสอบให้พี่เค็นครับ...", expanded=True) as status:
-            try:
-                response = requests.post(WEBHOOK_URL, json=payload)
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # --- สูตร "หยิบทุกอย่าง" (รองรับ GPT/Gemini/Claude) ---
-                    if isinstance(data, dict):
-                        # ถ้าเป็น ChatGPT จะอยู่ที่ choices[0].message.content
-                        # ถ้าพี่ขี้เกียจแก้ n8n สูตรนี้จะพยายามควานหาเนื้อหาให้เองครับ
-                        exam_content = data.get("exam_text", list(data.values())[0])
-                    else:
-                        exam_content = data
+        for idx, item in enumerate(inputs):
+            if item['word']:
+                final_prompt += f"{idx+1}. ให้นำคำบริเวณ [{item['word']}] มาตั้งเป็นคำถาม โดยวัดเรื่อง [{item['type']}] "
+                final_prompt += f"และให้เฉลยข้อที่ถูกต้องอยู่ตัวเลือก [{item['ans']}]\n"
+        
+        final_prompt += "\nเมื่อสร้างเสร็จแล้ว ให้แสดงเนื้อหาข้อสอบ พร้อมตัวเลือก A, B, C, D และเฉลยพร้อมคำอธิบายภาษาไทยให้พี่เค็นด้วยครับ"
 
-                    status.update(label="✅ ดึงข้อมูลสำเร็จ!", state="complete", expanded=False)
-                    st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
-                    st.info(exam_content) 
-                    st.balloons()
-                else:
-                    st.error(f"Error: n8n ติดขัด (รหัส {response.status_code})")
-            except Exception as e:
-                st.error(f"เชื่อมต่อไม่ได้: {e}")
+        # แสดงผล Prompt ในกล่องที่ก๊อบปี้ได้ง่าย
+        st.subheader("📋 ก๊อบปี้ข้อความข้างล่างนี้ไปแปะใน AI ได้เลยครับพี่!")
+        st.text_area("Copy Prompt:", value=final_prompt, height=400)
+        st.success("สร้าง Prompt สำเร็จ! พี่เค็นลากคลุมดำก๊อบไปใช้ได้เลยครับ")
+        st.balloons()
