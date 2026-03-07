@@ -30,8 +30,8 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
     if not context or not any(item['word'] for item in inputs):
         st.warning("กรุณาใส่บทสนทนาและเลือกคำอย่างน้อย 1 คำครับพี่เค็น")
     else:
-# วาง Test URL จาก n8n ของพี่แทนที่ลิงก์ข้างล่างนี้ครับ
-        WEBHOOK_URL = "my-n8n-production-67b5.up.railway.app" 
+# พี่ต้องใส่ให้ครบทั้ง https:// และ /webhook-test/create-exam ครับ
+        WEBHOOK_URL = "https://my-n8n-production-67b5.up.railway.app/webhook-test/create-exam" 
         
         payload = {
             "context": context,
