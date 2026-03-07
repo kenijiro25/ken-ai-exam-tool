@@ -30,15 +30,21 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
             try:
                 response = requests.post(WEBHOOK_URL, json=payload)
                 if response.status_code == 200:
-                st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
-                data = response.json()
-                
-                # สูตรล้างปีกกา JSON (ถ้า n8n ส่งมาเละ โค้ดนี้จะดึงแค่เนื้อความมาโชว์)
-                if isinstance(data, dict):
-                    exam_content = data.get("text", data.get("exam_text", list(data.values())[0]))
+                    # --- ส่วนนี้สำคัญ: จัดย่อหน้าให้ตรงตามกฎ Python ---
+                    st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
+                    data = response.json()
+                    
+                    if isinstance(data, dict):
+                        # แกะห่อหาเนื้อหาข้อสอบ (ข้ามปีกกาในรูป image_43aac7.jpg)
+                        exam_content = data.get("text", data.get("exam_text", list(data.values())[0]))
+                    else:
+                        exam_content = data
+                    
+                    status.update(label="✅ ดึงข้อมูลสำเร็จ!", state="complete", expanded=False)
+                    st.divider()
+                    st.markdown(exam_content) 
+                    st.balloons()
                 else:
-                    exam_content = data
-                
-                st.divider()
-                st.markdown(exam_content) # โชว์ข้อสอบสวย ๆ
-                st.balloons() # ยิงพลุฉลอง!
+                    st.error(f"Error: {response.status_code}")
+            except Exception as e:
+                st.error(f"เชื่อมต่อ n8n ไม่ได้: {e}")
