@@ -30,15 +30,9 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
             try:
                 response = requests.post(WEBHOOK_URL, json=payload)
                 if response.status_code == 200:
-                    # --- ส่วนนี้สำคัญ: จัดย่อหน้าให้ตรงตามกฎ Python ---
-                    st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
                     data = response.json()
-                    
-                    if isinstance(data, dict):
-                        # แกะห่อหาเนื้อหาข้อสอบ (ข้ามปีกกาในรูป image_43aac7.jpg)
-                        exam_content = data.get("text", data.get("exam_text", list(data.values())[0]))
-                    else:
-                        exam_content = data
+                    # ดึงค่าจากชื่อ exam_text ที่เราตั้งไว้ใน n8n
+                    exam_content = data.get("exam_text", "ไม่พบเนื้อหาข้อสอบครับพี่")
                     
                     status.update(label="✅ ดึงข้อมูลสำเร็จ!", state="complete", expanded=False)
                     st.divider()
