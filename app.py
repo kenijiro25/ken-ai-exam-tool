@@ -30,23 +30,15 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
             try:
                 response = requests.post(WEBHOOK_URL, json=payload)
                 if response.status_code == 200:
-                    raw_data = response.json()
-                    
-                    # --- สูตรแกะขยะ JSON ออกให้เหลือแต่ตัวหนังสือข้อสอบ ---
-                    if isinstance(raw_data, dict):
-                        # ถ้า n8n ส่งมาเป็นโครงสร้าง Gemini เราจะหยิบเฉพาะส่วนที่เป็น Text
-                        exam_text = raw_data.get('text', list(raw_data.values())[0])
-                    else:
-                        exam_text = raw_data
-                    
-                    status.update(label="✅ เสร็จเรียบร้อยครับพี่!", state="complete", expanded=False)
-                    st.divider()
-                    st.subheader("📝 ผลลัพธ์ข้อสอบ (ก๊อบไปใช้ได้เลย)")
-                    
-                    # แสดงผลแบบ Markdown เพื่อให้เว้นบรรทัดสวยงาม
-                    st.markdown(exam_text)
-                    st.balloons()
+                st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
+                data = response.json()
+                
+                # สูตรล้างปีกกา JSON (ถ้า n8n ส่งมาเละ โค้ดนี้จะดึงแค่เนื้อความมาโชว์)
+                if isinstance(data, dict):
+                    exam_content = data.get("text", data.get("exam_text", list(data.values())[0]))
                 else:
-                    st.error(f"Error: {response.status_code}")
-            except Exception as e:
-                st.error(f"Error: {e}")
+                    exam_content = data
+                
+                st.divider()
+                st.markdown(exam_content) # โชว์ข้อสอบสวย ๆ
+                st.balloons() # ยิงพลุฉลอง!
