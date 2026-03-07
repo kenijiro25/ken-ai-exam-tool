@@ -30,24 +30,21 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
             try:
                 response = requests.post(WEBHOOK_URL, json=payload)
                 if response.status_code == 200:
-                    status.update(label="✅ ดึงข้อมูลสำเร็จ!", state="complete", expanded=False)
-                    st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
-                    st.divider()
-                    
-                    data = response.json()
-                    # แกะห่อหาเนื้อหาข้อสอบ
-                    if isinstance(data, dict):
-                        exam_content = list(data.values())[0]
-                    else:
-                        exam_content = data
-                    
-                    # ถ้าข้อมูลไม่ว่าง ให้โชว์ในกล่องสีฟ้า
-                    if exam_content:
-                        st.info(exam_content)
+                    try:
+                        data = response.json()
+                        # หยิบเนื้อหามาโชว์ (ไม่สนว่าชื่ออะไร)
+                        exam_content = list(data.values())[0] if isinstance(data, dict) else data
+                    except:
+                        exam_content = response.text
+
+                    if exam_content and len(exam_content) > 10:
+                        status.update(label="✅ ดึงข้อมูลสำเร็จ!", state="complete", expanded=False)
+                        st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
+                        st.info(exam_content) # โชว์ในกล่องสีฟ้าเห็นชัดๆ
                         st.balloons()
                     else:
-                        st.warning("AI ไม่ได้ส่งข้อความออกมา (อาจจะโควตาเต็ม) ลองกดใหม่อีกรอบใน 1 นาทีครับพี่")
+                        st.warning("AI ส่งค่าว่างกลับมา (โควตาอาจจะเต็ม) ลองใหม่ใน 1 นาทีครับพี่")
                 else:
-                    st.error(f"Error: AI ติดขัด (Status {response.status_code})")
+                    st.error(f"Error: n8n ติดขัด (รหัส {response.status_code})")
             except Exception as e:
                 st.error(f"เชื่อมต่อไม่ได้: {e}")
