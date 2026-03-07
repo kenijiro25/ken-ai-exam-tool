@@ -31,7 +31,7 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
         st.warning("กรุณาใส่บทสนทนาและเลือกคำอย่างน้อย 1 คำครับพี่เค็น")
     else:
 # วาง Test URL จาก n8n ของพี่แทนที่ลิงก์ข้างล่างนี้ครับ
-        WEBHOOK_URL = "ใส่_TEST_URL_จาก_N8N_ตรงนี้" 
+        WEBHOOK_URL = "my-n8n-production-67b5.up.railway.app" 
         
         payload = {
             "context": context,
