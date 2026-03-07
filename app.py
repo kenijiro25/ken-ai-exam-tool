@@ -41,11 +41,25 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
         try:
             # ส่งข้อมูลไปหา n8n
             response = requests.post(WEBHOOK_URL, json=payload)
+            try:
+            # ส่งข้อมูลไปหา n8n
+            response = requests.post(WEBHOOK_URL, json=payload)
             if response.status_code == 200:
-                st.success("ส่งข้อมูลสำเร็จ! รอ AI สักครู่...")
-                # แสดงผลลัพธ์ที่ n8n ส่งกลับมา
+                st.success("ส่งข้อมูลสำเร็จ! AI เจนเสร็จแล้วครับพี่เค็น")
                 st.write("---")
-                st.markdown(response.json().get("exam_text", "กำลังประมวลผล..."))
+                
+                # --- ส่วนที่แก้ใหม่ (วิธีที่ 1) ---
+                data = response.json()
+                
+                # ถ้า n8n ส่งมาเป็น Dictionary เราจะหยิบค่าแรกที่เจอมาโชว์เลย
+                if isinstance(data, dict) and data:
+                    first_value = list(data.values())[0]
+                    st.markdown(first_value)
+                else:
+                    # ถ้าส่งมาเป็นข้อความตรงๆ ก็โชว์เลย
+                    st.markdown(data)
+                # ------------------------------
+                
             else:
                 st.error(f"Error: n8n ตอบกลับด้วยรหัส {response.status_code}")
         except Exception as e:
