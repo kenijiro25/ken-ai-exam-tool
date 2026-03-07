@@ -30,14 +30,22 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
             try:
                 response = requests.post(WEBHOOK_URL, json=payload)
                 if response.status_code == 200:
+                    # 1. รับข้อมูลดิบจาก n8n
                     data = response.json()
-                    # ดึงค่าจากชื่อ exam_text ที่เราตั้งไว้ใน n8n
-                    exam_content = data.get("exam_text", "ไม่พบเนื้อหาข้อสอบครับพี่")
+                    
+                    # 2. สูตร "หยิบทุกอย่างที่ขวางหน้า" มาโชว์
+                    if isinstance(data, dict):
+                        # ถ้า n8n ส่งมาเป็นกล่อง (dict) ให้หยิบค่าแรกข้างในมาเลย ไม่สนชื่อ!
+                        exam_content = list(data.values())[0]
+                    else:
+                        # ถ้า n8n ส่งมาเป็นข้อความเพียวๆ ก็โชว์เลย
+                        exam_content = data
                     
                     status.update(label="✅ ดึงข้อมูลสำเร็จ!", state="complete", expanded=False)
+                    st.success("✅ ได้ข้อสอบแล้วครับพี่เค็น!")
                     st.divider()
-                    st.markdown(exam_content) 
-                    st.balloons()
+                    st.markdown(exam_content) # โชว์ข้อสอบสวยๆ
+                    st.balloons() # ยิงพลุฉลองที่ทำสำเร็จครับ!
                 else:
                     st.error(f"Error: {response.status_code}")
             except Exception as e:
