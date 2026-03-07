@@ -37,23 +37,12 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
             "inputs": inputs
         }
         
-        try:
-            # ส่งข้อมูลไปหา n8n
-            response = requests.post(WEBHOOK_URL, json=payload)
-            if response.status_code == 200:
-                st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
-                st.divider()
-                
-                # ดึงข้อมูลจาก n8n
-                data = response.json()
-                
-                # ดึงเฉพาะข้อความข้อสอบออกมา (ไม่เอาโค้ด JSON ส่วนเกิน)
-                if isinstance(data, dict):
-                    # พยายามหาคำว่า exam_text ถ้าไม่มีให้หยิบค่าแรกที่เจอ
-                    exam_content = data.get("exam_text", list(data.values())[0])
-                else:
-                    exam_content = data
-                
-                # แสดงผลแบบ Markdown เพื่อให้เว้นบรรทัดสวยงาม
-                st.markdown(exam_content)
-                st.balloons() # ยิงพลุฉลองที่ทำสำเร็จครับพี่!
+        with st.status("🤖 AI กำลังสร้างข้อสอบให้พี่เค็นอยู่นะครับ...", expanded=True) as status:
+            try:
+                response = requests.post(WEBHOOK_URL, json=payload)
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    # --- ส่วนการดึงข้อมูลและทำความสะอาด (ดึงแค่เนื้อหาข้อสอบ) ---
+                    if isinstance(data, dict):
+                        # หยิบค่าแรกที่เจอ (
