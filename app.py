@@ -45,4 +45,22 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
                     
                     # --- ส่วนการดึงข้อมูลและทำความสะอาด (ดึงแค่เนื้อหาข้อสอบ) ---
                     if isinstance(data, dict):
-                        # หยิบค่าแรกที่เจอ (
+                        # หยิบค่าแรกที่เจอ (ซึ่งควรเป็นเนื้อหาข้อสอบ)
+                        exam_content = list(data.values())[0]
+                    else:
+                        exam_content = data
+                    
+                    status.update(label="✅ สร้างข้อสอบสำเร็จแล้วครับ!", state="complete", expanded=False)
+                    
+                    st.divider()
+                    st.subheader("📝 ผลลัพธ์ข้อสอบ (พี่เค็นก๊อบไปใช้ได้เลย)")
+                    
+                    # แสดงผลแบบ Markdown จะช่วยให้เว้นบรรทัดและทำตัวหนาสวยงาม
+                    st.markdown(exam_content)
+                    
+                    st.balloons() # ยิงพลุฉลองความสำเร็จ!
+                    
+                else:
+                    st.error(f"Error: n8n ตอบกลับด้วยรหัส {response.status_code}")
+            except Exception as e:
+                st.error(f"เชื่อมต่อ n8n ไม่ได้: {e}")
