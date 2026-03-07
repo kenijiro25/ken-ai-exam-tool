@@ -20,7 +20,7 @@ for i in range(5):
     with cols[i]:
         st.markdown(f"**คำถามข้อที่ {i+1}**")
         word = st.text_input(f"คำที่เลือก", key=f"w_{i}", placeholder="เช่น although")
-        category = st.selectbox(f"วัดเรื่อง", ["Grammar", "Vocabulary", "Idiom", "Tense", "Logic"], key=f"c_{i}")
+        category = st.selectbox(f"วัดเรื่อง", ["Tense", "Vocabulary", "Idiom", "Manner", "Logic"], key=f"c_{i}")
         inputs.append({"word": word, "type": category})
 
 st.divider()
