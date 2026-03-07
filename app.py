@@ -14,7 +14,7 @@ st.divider()
 st.subheader("2. เลือกคำที่จะเจาะช่องว่าง (Fill in the blank)")
 
 inputs = []
-cols = st.columns(5) # แบ่งเป็น 5 คอลัมน์สวยๆ
+cols = st.columns(5) 
 
 for i in range(5):
     with cols[i]:
@@ -30,7 +30,6 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
     if not context or not any(item['word'] for item in inputs):
         st.warning("กรุณาใส่บทสนทนาและเลือกคำอย่างน้อย 1 คำครับพี่เค็น")
     else:
-# พี่ต้องใส่ให้ครบทั้ง https:// และ /webhook-test/create-exam ครับ
         WEBHOOK_URL = "https://my-n8n-production-67b5.up.railway.app/webhook/create-exam" 
         
         payload = {
@@ -41,25 +40,20 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
         try:
             # ส่งข้อมูลไปหา n8n
             response = requests.post(WEBHOOK_URL, json=payload)
-            try:
-            # ส่งข้อมูลไปหา n8n
-            response = requests.post(WEBHOOK_URL, json=payload)
             if response.status_code == 200:
                 st.success("ส่งข้อมูลสำเร็จ! AI เจนเสร็จแล้วครับพี่เค็น")
                 st.write("---")
                 
-                # --- ส่วนที่แก้ใหม่ (วิธีที่ 1) ---
+                # --- วิธีที่ 1: ดึงค่าแรกที่เจอมาโชว์ทันที ---
                 data = response.json()
-                
-                # ถ้า n8n ส่งมาเป็น Dictionary เราจะหยิบค่าแรกที่เจอมาโชว์เลย
                 if isinstance(data, dict) and data:
-                    first_value = list(data.values())[0]
-                    st.markdown(first_value)
+                    # หยิบค่าแรกในกล่อง ไม่ว่าชื่อ key จะเป็นอะไร (แก้ปัญหาชื่อไม่ตรง)
+                    exam_content = list(data.values())[0]
+                    st.markdown(exam_content)
                 else:
-                    # ถ้าส่งมาเป็นข้อความตรงๆ ก็โชว์เลย
                     st.markdown(data)
-                # ------------------------------
                 
+                st.balloons() # ยิงพลุฉลองความสำเร็จ!
             else:
                 st.error(f"Error: n8n ตอบกลับด้วยรหัส {response.status_code}")
         except Exception as e:
