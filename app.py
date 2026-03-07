@@ -41,20 +41,19 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
             # ส่งข้อมูลไปหา n8n
             response = requests.post(WEBHOOK_URL, json=payload)
             if response.status_code == 200:
-                st.success("ส่งข้อมูลสำเร็จ! AI เจนเสร็จแล้วครับพี่เค็น")
-                st.write("---")
+                st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
+                st.divider()
                 
-                # --- วิธีที่ 1: ดึงค่าแรกที่เจอมาโชว์ทันที ---
+                # ดึงข้อมูลจาก n8n
                 data = response.json()
-                if isinstance(data, dict) and data:
-                    # หยิบค่าแรกในกล่อง ไม่ว่าชื่อ key จะเป็นอะไร (แก้ปัญหาชื่อไม่ตรง)
-                    exam_content = list(data.values())[0]
-                    st.markdown(exam_content)
-                else:
-                    st.markdown(data)
                 
-                st.balloons() # ยิงพลุฉลองความสำเร็จ!
-            else:
-                st.error(f"Error: n8n ตอบกลับด้วยรหัส {response.status_code}")
-        except Exception as e:
-            st.error(f"เชื่อมต่อ n8n ไม่ได้: {e}")
+                # ดึงเฉพาะข้อความข้อสอบออกมา (ไม่เอาโค้ด JSON ส่วนเกิน)
+                if isinstance(data, dict):
+                    # พยายามหาคำว่า exam_text ถ้าไม่มีให้หยิบค่าแรกที่เจอ
+                    exam_content = data.get("exam_text", list(data.values())[0])
+                else:
+                    exam_content = data
+                
+                # แสดงผลแบบ Markdown เพื่อให้เว้นบรรทัดสวยงาม
+                st.markdown(exam_content)
+                st.balloons() # ยิงพลุฉลองที่ทำสำเร็จครับพี่!
