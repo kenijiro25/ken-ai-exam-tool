@@ -30,22 +30,21 @@ if st.button("🚀 Generate ข้อสอบ", type="primary", use_container_w
             try:
                 response = requests.post(WEBHOOK_URL, json=payload)
                 if response.status_code == 200:
-                    # 1. รับข้อมูลดิบจาก n8n
-                    data = response.json()
-                    
-                    # 2. สูตร "หยิบทุกอย่างที่ขวางหน้า" มาโชว์
-                    if isinstance(data, dict):
-                        # ถ้า n8n ส่งมาเป็นกล่อง (dict) ให้หยิบค่าแรกข้างในมาเลย ไม่สนชื่อ!
-                        exam_content = list(data.values())[0]
-                    else:
-                        # ถ้า n8n ส่งมาเป็นข้อความเพียวๆ ก็โชว์เลย
-                        exam_content = data
-                    
-                    status.update(label="✅ ดึงข้อมูลสำเร็จ!", state="complete", expanded=False)
-                    st.success("✅ ได้ข้อสอบแล้วครับพี่เค็น!")
-                    st.divider()
-                    st.markdown(exam_content) # โชว์ข้อสอบสวยๆ
-                    st.balloons() # ยิงพลุฉลองที่ทำสำเร็จครับ!
+                    try:
+                        data = response.json()
+                        # สูตรแกะห่อ: พยายามหาชื่อ exam_text ถ้าไม่มีให้หยิบค่าแรกที่เจอมาเลย
+                        if isinstance(data, dict):
+                            exam_content = data.get("exam_text", list(data.values())[0])
+                        else:
+                            exam_content = data
+                        
+                        status.update(label="✅ ดึงข้อมูลสำเร็จ!", state="complete", expanded=False)
+                        st.success("ข้อสอบเจนเสร็จแล้วครับพี่เค็น!")
+                        st.divider()
+                        st.markdown(exam_content) 
+                        st.balloons()
+                    except Exception as json_err:
+                        st.error(f"แกะข้อมูลไม่ได้: {json_err} (ลองเช็คใน n8n ว่าใส่ exam_text= หรือยังครับ)")
                 else:
                     st.error(f"Error: {response.status_code}")
             except Exception as e:
