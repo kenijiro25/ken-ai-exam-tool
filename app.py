@@ -82,7 +82,7 @@ elif menu == "2. Tense & Grammar":
         st.text_area("Copy Prompt:", value=prompt, height=400)
 
 # ----------------------------------------------------------------
-# เมนูที่ 3: Reading Comprehension
+# เมนูที่ 3: Reading Comprehension (ฉบับปรับปรุงการเฉลย)
 # ----------------------------------------------------------------
 elif menu == "3. Reading Comprehension":
     st.title("📖 เมนูที่ 3: Reading Comprehension")
@@ -108,26 +108,31 @@ elif menu == "3. Reading Comprehension":
     cols = st.columns(5)
     ans_reading = []
     for i in range(5):
+        q_current = start_num + i
         with cols[i]:
-            st.markdown(f"**ข้อที่ {start_num + i}**")
-            ans = st.selectbox(f"เฉลย", ["a)", "b)", "c)", "d)"], key=f"read_a_{i}")
-            ans_reading.append(ans)
+            st.markdown(f"**ข้อที่ {q_current}**")
+            ans = st.selectbox(f"ล็อคเฉลยไว้ที่", ["a)", "b)", "c)", "d)"], key=f"read_a_{i}")
+            ans_reading.append({"num": q_current, "key": ans})
 
     if st.button("🚀 สร้าง Prompt Reading", type="primary", use_container_width=True):
         prompt = f"จงสร้างบทความ Reading ({rtype}) เกี่ยวกับเรื่อง: {topic}\n"
         if "ยาว" in rtype: prompt += "- ความยาวประมาณ 3-4 ย่อหน้า (ไม่เกินครึ่งหน้า A4)\n"
         
-        prompt += f"\nจากนั้นสร้างข้อสอบ 5 ข้อ (เริ่มที่ข้อที่ {start_num} ถึง {start_num+4}) โดยมีเงื่อนไขดังนี้:\n"
-        if c1: prompt += f"- ข้อที่ {start_num}: ถามเกี่ยวกับชื่อเรื่อง (Title)\n"
-        if c2: prompt += f"- ข้อที่ {start_num}: ถามเกี่ยวกับวัตถุประสงค์หรือ Main Idea\n"
-        if c3: prompt += "- มีหนึ่งข้อถามว่า 'ข้อใดผิด' (Which is FALSE?)\n"
-        if c4: prompt += "- มีหนึ่งข้อถามว่า 'ข้อใดถูก' (Which is TRUE?)\n"
-        if c5: prompt += "- มีหนึ่งข้อถามความหมายคำศัพท์ หรือ Synonym จากเนื้อหา\n"
+        prompt += f"\nจากนั้นสร้างข้อสอบ Multiple Choice 5 ข้อ (เริ่มที่ข้อที่ {start_num} ถึง {start_num+4}) โดยมีเงื่อนไขดังนี้:\n"
+        if c1: prompt += f"- ข้อที่ {start_num}: ให้ถามเกี่ยวกับชื่อเรื่อง (Title)\n"
+        if c2: prompt += f"- ข้อที่ {start_num}: ให้ถามเกี่ยวกับวัตถุประสงค์หรือ Main Idea\n"
+        if c3: prompt += "- ต้องมีข้อใดข้อหนึ่งที่ถามว่า 'ข้อใดผิด' (Which is FALSE?)\n"
+        if c4: prompt += "- ต้องมีข้อใดข้อหนึ่งที่ถามว่า 'ข้อใดถูก' (Which is TRUE?)\n"
+        if c5: prompt += "- ต้องมีข้อใดข้อหนึ่งที่ถามความหมายคำศัพท์ หรือ Synonym จากเนื้อหา\n"
         if c6: prompt += "- ในบทความต้องมีการใช้ Pronoun และมีหนึ่งข้อถามว่า Pronoun นั้นหมายถึงอะไร\n"
         
-        prompt += "\nการเฉลย:\n"
-        for i, a in enumerate(ans_reading):
-            prompt += f"- ข้อที่ {start_num+i} ตอบตัวเลือก [{a}]\n"
+        prompt += "\nการกำหนดเฉลย (ล็อคตำแหน่งตัวเลือก):\n"
+        for item in ans_reading:
+            prompt += f"- ข้อที่ {item['num']}: กำหนดให้ข้อที่ถูกต้องอยู่ในตัวเลือก [{item['key']}]\n"
         
-        prompt += f"\nหมายเหตุ: เริ่มต้นทุกข้อด้วยคำว่า 'ข้อที่' และเฉลยรวมไว้ท้ายสุดหลังสร้างข้อสอบเสร็จ"
+        prompt += "\nการแสดงผลและเฉลย:\n"
+        prompt += "1. เริ่มต้นทุกข้อด้วยคำว่า 'ข้อที่' เสมอ\n"
+        prompt += "2. ให้สร้างเฉลยรวมไว้ที่ท้ายสุดหลังจากสร้างข้อสอบเสร็จทุกข้อ\n"
+        prompt += "3. การเฉลยห้ามบอกแค่ตัวอักษร a) b) c) d) เท่านั้น แต่ต้องแสดงข้อความเต็มของคำตอบที่ถูกต้องด้วย (ตัวอย่าง: ตอบ a) [เนื้อหาคำตอบ])"
+        
         st.text_area("Copy Prompt:", value=prompt, height=450)
