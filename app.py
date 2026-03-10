@@ -9,13 +9,18 @@ with st.sidebar:
     st.subheader("เลือกประเภทข้อสอบ")
     menu = st.selectbox(
         "เมนูที่ต้องการ:",
-        ["1. Conversation", "2. Tense & Grammar", "3. Reading Comprehension"]
+        [
+            "1. Conversation", 
+            "2. Tense & Grammar", 
+            "3. Reading Comprehension",
+            "4. Vocabulary Mastery"
+        ]
     )
     st.divider()
     st.info("ก๊อบ Prompt ไปใช้ใน ChatGPT/Claude ได้เลยครับพี่!")
 
 # ----------------------------------------------------------------
-# เมนูที่ 1: Conversation (ตัวเดิมที่พี่ปรับจูนไว้)
+# เมนูที่ 1: Conversation
 # ----------------------------------------------------------------
 if menu == "1. Conversation":
     st.title("💬 เมนูที่ 1: Conversation")
@@ -41,11 +46,11 @@ if menu == "1. Conversation":
         for idx, item in enumerate(inputs):
             prompt += f"   - ข้อที่ {idx+1}: คำตอบคือ [{item['word']}] อยู่ในตัวเลือก [{item['ans']}]\n"
         prompt += "3. สรุปท้ายสุดว่าแต่ละข้อวัดเรื่องอะไร (ตามที่กำหนด: " + ", ".join([f"ข้อ {i+1} {v['type']}" for i,v in enumerate(inputs)]) + ")\n"
-        prompt += "4. เฉลยและอธิบายภาษาไทยสไตล์ 'พี่เค็นพาทำ'"
+        prompt += "4. เฉลยและอธิบายภาษาไทยสไตล์ 'พี่เค็นพาทำ' โดยแสดงเนื้อหาคำตอบเต็มหลังตัวอักษรเฉลย"
         st.text_area("Copy Prompt:", value=prompt, height=400)
 
 # ----------------------------------------------------------------
-# เมนูที่ 2: Tense & Grammar (ความยากระดับสอบราชการ)
+# เมนูที่ 2: Tense & Grammar
 # ----------------------------------------------------------------
 elif menu == "2. Tense & Grammar":
     st.title("✍️ เมนูที่ 2: Tense & Grammar")
@@ -55,9 +60,10 @@ elif menu == "2. Tense & Grammar":
         "Tense", "Tense วัดเรื่อง Passive Voice", "Tense คู่ (เว้น 1 คำ มีบริบทคู่)",
         "Comparison (ขั้นเท่า ขั้นกว่า ขั้นสุด)", "Conjunctions & Connectors",
         "Preposition", "Preposition (เวลา/สถานที่ in on at)", "Relative Pronoun",
-        "Relative Pronoun (ใช้ whose กรณีที่ข้างหน้าช่องว่างเป็นคน แล้วตัวเลือกมีทั้ง  whom whose)", "Relative Pronoun (ตอบ that แทน)",
-        "If-clause (เว้นกริยาประโยคแรก)", "If-clause (เว้นกริยาประโยคหลัง)",
-        "If-clause แบบ If อยู่ตรงกลางแล้วถามคำกริยาข้างหน้าหรือข้างหลัง if", "Gerund", "Part of Speeches"
+        "Relative Pronoun (ใช้ whose กรณีที่ข้างหน้าช่องว่างเป็นคน แล้วตัวเลือกมีทั้ง whom whose)", 
+        "Relative Pronoun (ตอบ that แทน)", "If-clause (เว้นกริยาประโยคแรก)", 
+        "If-clause (เว้นกริยาประโยคหลัง)", "If-clause แบบ If อยู่ตรงกลางแล้วถามคำกริยาข้างหน้าหรือข้างหลัง if", 
+        "Gerund", "Part of Speeches"
     ]
     
     inputs_tense = []
@@ -78,11 +84,11 @@ elif menu == "2. Tense & Grammar":
             prompt += f"- ข้อที่ {item['num']}: ถามเรื่อง [{item['type']}] โดยให้ข้อที่ถูกต้องคือตัวเลือก [{item['ans']}]\n"
         prompt += "\nการแสดงผล:\n1. เริ่มต้นทุกข้อด้วยคำว่า 'ข้อที่' เสมอ\n"
         prompt += "2. สร้างโจทย์แบบเว้นช่องว่างให้เลือกเติมคำที่ถูกต้อง\n"
-        prompt += "3. เฉลยรวมที่เดียวตอนท้ายสุด โดยบอกแค่: ตอบ a) ... b) ... ไม่ต้องอธิบายเยอะ"
+        prompt += "3. เฉลยรวมที่เดียวตอนท้ายสุด โดยบอกแค่: ตอบ a) [Text คำตอบ] ... ไม่ต้องอธิบายเยอะ"
         st.text_area("Copy Prompt:", value=prompt, height=400)
 
 # ----------------------------------------------------------------
-# เมนูที่ 3: Reading Comprehension (ฉบับปรับปรุงการเฉลย)
+# เมนูที่ 3: Reading Comprehension
 # ----------------------------------------------------------------
 elif menu == "3. Reading Comprehension":
     st.title("📖 เมนูที่ 3: Reading Comprehension")
@@ -96,7 +102,6 @@ elif menu == "3. Reading Comprehension":
     st.subheader("ตั้งค่าคำถาม (5 ข้อ)")
     start_num = 16 if "สั้น" in rtype else 21
     
-    # Checkbox สำหรับเงื่อนไขคำถาม
     c1 = st.checkbox("ข้อที่ 1: ถามชื่อเรื่อง (Title)", value=True)
     c2 = st.checkbox("ข้อที่ 1: ถามวัตถุประสงค์/Main Idea", value=False)
     c3 = st.checkbox("ต้องมีข้อใดข้อหนึ่งถามว่า 'ข้อใดผิด' (Which is FALSE?)", value=True)
@@ -130,14 +135,13 @@ elif menu == "3. Reading Comprehension":
         for item in ans_reading:
             prompt += f"- ข้อที่ {item['num']}: กำหนดให้ข้อที่ถูกต้องอยู่ในตัวเลือก [{item['key']}]\n"
         
-        prompt += "\nการแสดงผลและเฉลย:\n"
-        prompt += "1. เริ่มต้นทุกข้อด้วยคำว่า 'ข้อที่' เสมอ\n"
+        prompt += "\nการแสดงผลและเฉลย:\n1. เริ่มต้นทุกข้อด้วยคำว่า 'ข้อที่' เสมอ\n"
         prompt += "2. ให้สร้างเฉลยรวมไว้ที่ท้ายสุดหลังจากสร้างข้อสอบเสร็จทุกข้อ\n"
         prompt += "3. การเฉลยห้ามบอกแค่ตัวอักษร a) b) c) d) เท่านั้น แต่ต้องแสดงข้อความเต็มของคำตอบที่ถูกต้องด้วย (ตัวอย่าง: ตอบ a) [เนื้อหาคำตอบ])"
-        
         st.text_area("Copy Prompt:", value=prompt, height=450)
+
 # ----------------------------------------------------------------
-# เมนูที่ 4: Vocabulary Mastery (ระดับ B1 - B2 / Oxford 3000)
+# เมนูที่ 4: Vocabulary Mastery
 # ----------------------------------------------------------------
 elif menu == "4. Vocabulary Mastery":
     st.title("🧪 เมนูที่ 4: Vocabulary Mastery")
@@ -145,29 +149,13 @@ elif menu == "4. Vocabulary Mastery":
     
     inputs_vocab = []
     cols = st.columns(5)
-    
     for i in range(5):
         q_num = i + 11
         with cols[i]:
             st.markdown(f"**ข้อที่ {q_num}**")
-            # ให้เลือกความยากแยกแต่ละข้อ
             level = st.selectbox(f"ระดับความยาก", ["CEFR B1 (Intermediate)", "CEFR B2 (Upper-Intermediate)"], key=f"voc_l_{i}")
-            # ล็อคตำแหน่งเฉลย
             ans = st.selectbox(f"เฉลยไว้ที่", ["a)", "b)", "c)", "d)"], key=f"voc_a_{i}")
             inputs_vocab.append({"num": q_num, "level": level, "ans": ans})
 
     if st.button("🚀 สร้าง Prompt Vocabulary", type="primary", use_container_width=True):
-        prompt = "จงสร้างข้อสอบภาษาอังกฤษแบบเลือกตอบ (Multiple Choice) จำนวน 5 ข้อ\n"
-        prompt += "เป้าหมาย: วัดความรู้ด้านคำศัพท์ (Vocabulary) ระดับพื้นฐานถึงกึ่งวิชาการ (Oxford 3000)\n\n"
-        prompt += "เงื่อนไขการสร้างจากพี่เค็น:\n"
-        
-        for item in inputs_vocab:
-            prompt += f"- ข้อที่ {item['num']}: ใช้คำศัพท์ระดับ [{item['level']}] โดยให้คำตอบที่ถูกต้องอยู่ในตัวเลือก [{item['ans']}]\n"
-        
-        prompt += "\nคำสั่งเพิ่มเติมด้านเทคนิค:\n"
-        prompt += "1. ตัวเลือก a) b) c) d) ในแต่ละข้อ 'ไม่จำเป็นต้องขึ้นต้นด้วยตัวอักษรเดียวกัน' (เช่น ไม่ต้อง Co- หมดทุกข้อ) ให้เน้นความหลากหลายของคำที่มีความหมายใกล้เคียงกันเพื่อให้ผู้สอบเลือกคำที่เข้ากับบริบทได้ถูกต้องที่สุด\n"
-        prompt += "2. ทุกข้อต้องเริ่มต้นด้วยคำว่า 'ข้อที่' เสมอ\n"
-        prompt += "3. โจทย์ต้องเป็นลักษณะประโยคที่มีช่องว่าง ______________ ให้เติมคำศัพท์\n"
-        prompt += "4. เมื่อสร้างเสร็จแล้ว ให้สรุปเฉลยรวมไว้ท้ายสุด โดยต้องแสดงตัวอักษรเฉลยพร้อมข้อความเต็มของคำตอบที่ถูกต้อง (เช่น ตอบ a) [เนื้อหาคำตอบ]) และมีคำอธิบายสไตล์ 'พี่เค็นพาทำ' สั้นๆ ประกอบด้วย"
-        
-        st.text_area("Copy Prompt:", value=prompt, height=450)
+        prompt = "จงสร้างข้อสอบภาษาอังกฤษแบบเลือกตอบ (Multiple Choice) จำนวน 5
