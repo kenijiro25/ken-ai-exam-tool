@@ -141,7 +141,7 @@ elif menu == "3. Reading Comprehension":
         st.text_area("Copy Prompt:", value=prompt, height=450)
 
 # ----------------------------------------------------------------
-# เมนูที่ 4: Vocabulary Mastery
+# เมนูที่ 4: Vocabulary Mastery (ระดับ B1 - B2 / Oxford 3000)
 # ----------------------------------------------------------------
 elif menu == "4. Vocabulary Mastery":
     st.title("🧪 เมนูที่ 4: Vocabulary Mastery")
@@ -158,4 +158,14 @@ elif menu == "4. Vocabulary Mastery":
             inputs_vocab.append({"num": q_num, "level": level, "ans": ans})
 
     if st.button("🚀 สร้าง Prompt Vocabulary", type="primary", use_container_width=True):
-        prompt = "จงสร้างข้อสอบภาษาอังกฤษแบบเลือกตอบ (Multiple Choice) จำนวน 5
+        # รวมข้อความเป็นบรรทัดเดียวเพื่อป้องกัน SyntaxError
+        prompt = "จงสร้างข้อสอบภาษาอังกฤษแบบเลือกตอบ (Multiple Choice) จำนวน 5 ข้อ\n"
+        prompt += "เป้าหมาย: วัดความรู้ด้านคำศัพท์ (Vocabulary) ระดับพื้นฐานถึงกึ่งวิชาการ (Oxford 3000)\n\n"
+        prompt += "เงื่อนไขการสร้างจากพี่เค็น:\n"
+        for item in inputs_vocab:
+            prompt += f"- ข้อที่ {item['num']}: ใช้คำศัพท์ระดับ [{item['level']}] โดยให้คำตอบที่ถูกต้องอยู่ในตัวเลือก [{item['ans']}]\n"
+        prompt += "\nคำสั่งเพิ่มเติมด้านเทคนิค:\n1. ตัวเลือก a) b) c) d) ในแต่ละข้อไม่จำเป็นต้องขึ้นต้นด้วยตัวอักษรเดียวกัน ให้เน้นความหลากหลาย\n"
+        prompt += "2. ทุกข้อต้องเริ่มต้นด้วยคำว่า 'ข้อที่' เสมอ\n"
+        prompt += "3. โจทย์ต้องเป็นลักษณะประโยคที่มีช่องว่าง ______________ ให้เติมคำศัพท์\n"
+        prompt += "4. เมื่อสร้างเสร็จแล้ว ให้สรุปเฉลยรวมไว้ท้ายสุด โดยต้องแสดงตัวอักษรเฉลยพร้อมข้อความเต็มของคำตอบที่ถูกต้อง (ตัวอย่าง: ตอบ a) [เนื้อหาคำตอบ])"
+        st.text_area("Copy Prompt:", value=prompt, height=450)
