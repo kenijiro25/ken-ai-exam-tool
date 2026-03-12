@@ -6,12 +6,12 @@ st.set_page_config(page_title="P'Ken Prompt Master", layout="wide")
 
 # ฟังก์ชันสำหรับ Shuffle เฉลย
 def shuffle_answers():
-    for i in range(25): # ครอบคลุมทุกเมนู
+    for i in range(26): # ครอบคลุมข้อ 1-25
         st.session_state[f"ans_key_{i}"] = random.choice(["a)", "b)", "c)", "d)"])
 
 # ฟังก์ชันสำหรับ Clear ค่าทั้งหมด
 def clear_all():
-    for key in st.session_state.keys():
+    for key in list(st.session_state.keys()):
         del st.session_state[key]
     st.rerun()
 
@@ -47,14 +47,14 @@ if menu == "1. Conversation":
     categories_conv = ["ความเข้าใจเรื่อง Tense", "การเลือกคำตอบให้เหมาะกับบริบท", "คำศัพท์", "มารยาทในการสนทนา", "การตั้งคำถามให้เหมาะกับบริบท"]
     
     for i in range(5):
+        q_num = i + 1
         with cols[i]:
-            st.markdown(f"**ข้อที่ {i+1}**")
+            st.markdown(f"**ข้อที่ {q_num}**")
             word = st.text_input(f"คำที่เลือก", key=f"conv_w_{i}")
             cat = st.selectbox(f"วัดเรื่อง", categories_conv, key=f"conv_c_{i}")
-            # ใช้ Session State สำหรับ Shuffle
-            if f"ans_key_{i}" not in st.session_state:
-                st.session_state[f"ans_key_{i}"] = "a)"
-            ans = st.selectbox(f"เฉลยข้อไหน", ["a)", "b)", "c)", "d)"], key=f"ans_key_{i}")
+            if f"ans_key_{q_num}" not in st.session_state:
+                st.session_state[f"ans_key_{q_num}"] = "a)"
+            ans = st.selectbox(f"เฉลยข้อไหน", ["a)", "b)", "c)", "d)"], key=f"ans_key_{q_num}")
             confuse = st.checkbox("ตัวเลือกชวนสับสน", key=f"conv_conf_{i}")
             inputs.append({"word": word, "type": cat, "ans": ans, "confuse": confuse})
 
@@ -62,18 +62,18 @@ if menu == "1. Conversation":
         prompt = f"จงสร้างข้อสอบ Multiple Choice (5 ข้อ) โดยใช้บทสนทนานี้:\n{context}\n\n"
         prompt += "เงื่อนไขพิเศษจากพี่เค็น:\n"
         prompt += "1. แสดง 'Exam Passage' เจาะช่องว่าง (1)-(5) ______________\n"
-        prompt += "2. ทุกข้อใช้คำถาม 'Please use above conversation' เท่านั้น\n"
+        prompt += "2. ทุกข้อใช้คำถาม 'Please use above conversation' เท่านั้น และห้ามใส่หัวข้อวัดเรื่องไว้หลังเลขข้อ\n"
         
         for idx, item in enumerate(inputs):
             prompt += f"   - ข้อที่ {idx+1}: คำตอบคือ [{item['word']}] ล็อคไว้ที่ตัวเลือก [{item['ans']}]"
             if item['type'] == "มารยาทในการสนทนา":
-                prompt += " (เน้นวัดระดับความสุภาพ/Politeness โดยตัวเลือกอื่นต้องมีความหมายคล้ายกันแต่ไม่สุภาพเท่า)"
+                prompt += " (เน้นวัดระดับความสุภาพ/Politeness)"
             if item['confuse']:
-                prompt += " **หมายเหตุ: สร้างตัวเลือกหลอกให้มีความใกล้เคียงหรือชวนสับสนที่สุด**"
+                prompt += " (สร้างตัวเลือกหลอกให้มีความใกล้เคียงหรือชวนสับสนที่สุด)"
             prompt += "\n"
             
-        prompt += "3. สรุปท้ายสุดว่าแต่ละข้อวัดเรื่องอะไร\n"
-        prompt += "4. เฉลยและอธิบายภาษาไทยสไตล์ 'พี่เค็นพาทำ' แสดงเนื้อความเต็มหลังตัวอักษรเฉลย"
+        prompt += "\n3. ห้ามระบุชื่อหัวข้อไวยากรณ์หรือเรื่องที่วัด (เช่น [Tense]) ไว้ในตัวข้อสอบเด็ดขาด\n"
+        prompt += "4. ให้รวบรวมหัวข้อวัดเรื่องและเฉลยไว้ท้ายสุดหลังสร้างข้อสอบเสร็จ พร้อมอธิบายภาษาไทยสไตล์ 'พี่เค็นพาทำ' แสดงเนื้อความเต็มหลังตัวอักษรเฉลย"
         st.text_area("Copy Prompt:", value=prompt, height=400)
 
 # ----------------------------------------------------------------
@@ -107,9 +107,14 @@ elif menu == "2. Tense & Grammar":
 
     if st.button("🚀 สร้าง Prompt Tense & Grammar", type="primary", use_container_width=True):
         prompt = "จงสร้างข้อสอบภาษาอังกฤษแบบ Multiple Choice (a, b, c, d) ระดับสอบราชการ จำนวน 5 ข้อ\n"
+        prompt += "เงื่อนไขการสร้าง:\n"
         for item in inputs_tense:
-            prompt += f"- ข้อที่ {item['num']}: เรื่อง [{item['type']}] ล็อคเฉลยที่ [{item['ans']}]\n"
-        prompt += "เงื่อนไข: เริ่มต้นทุกข้อด้วย 'ข้อที่' และเฉลยรวมท้ายสุดแบบแสดงเนื้อความเต็ม"
+            prompt += f"- ข้อที่ {item['num']}: ถามเรื่อง [{item['type']}] โดยให้ข้อที่ถูกต้องคือตัวเลือก [{item['ans']}]\n"
+        
+        prompt += "\nกฎเหล็กการแสดงผล:\n"
+        prompt += "1. เริ่มต้นทุกข้อด้วยคำว่า 'ข้อที่' ตามด้วยเลขข้อเท่านั้น (ห้ามใส่ชื่อหัวข้อไวยากรณ์ เช่น [Preposition] ไว้ในโจทย์)\n"
+        prompt += "2. สร้างโจทย์แบบเว้นช่องว่างให้เลือกเติมคำที่ถูกต้อง\n"
+        prompt += "3. แสดงเฉลยรวมไว้ท้ายสุดหลังสร้างข้อสอบเสร็จ โดยบอกเฉลยพร้อมเนื้อความเต็ม (เช่น ตอบ a) [เนื้อหาคำตอบ]) และบอกว่าข้อนั้นวัดเรื่องอะไร"
         st.text_area("Copy Prompt:", value=prompt, height=400)
 
 # ----------------------------------------------------------------
@@ -122,14 +127,12 @@ elif menu == "3. Reading Comprehension":
     start_num = 16 if "สั้น" in rtype else 21
     
     st.subheader("ตั้งค่าคำถาม")
-    c_list = [
-        st.checkbox("ถามชื่อเรื่อง (Title)", value=True, key="c1"),
-        st.checkbox("ถามวัตถุประสงค์/Main Idea", value=False, key="c2"),
-        st.checkbox("ถาม 'ข้อใดผิด' (Which is FALSE?)", value=True, key="c3"),
-        st.checkbox("ถาม 'ข้อใดถูก' (Which is TRUE?)", value=True, key="c4"),
-        st.checkbox("ถามศัพท์/Synonym", value=True, key="c5"),
-        st.checkbox("ถามความหมาย Pronoun", value=True, key="c6")
-    ]
+    c1 = st.checkbox("ถามชื่อเรื่อง (Title)", value=True)
+    c2 = st.checkbox("ถามวัตถุประสงค์/Main Idea", value=False)
+    c3 = st.checkbox("ถาม 'ข้อใดผิด' (Which is FALSE?)", value=True)
+    c4 = st.checkbox("ถาม 'ข้อใดถูก' (Which is TRUE?)", value=True)
+    c5 = st.checkbox("ถามศัพท์/Synonym", value=True)
+    c6 = st.checkbox("ถามความหมาย Pronoun", value=True)
     
     cols = st.columns(5)
     ans_reading = []
@@ -144,10 +147,13 @@ elif menu == "3. Reading Comprehension":
 
     if st.button("🚀 สร้าง Prompt Reading", type="primary", use_container_width=True):
         prompt = f"จงสร้างบทความ Reading ({rtype}) เรื่อง: {topic}\n"
-        prompt += f"สร้างข้อสอบข้อ {start_num}-{start_num+4} เงื่อนไข: Title/Main Idea, TRUE/FALSE, Synonym, Pronoun Reference\n"
+        prompt += f"สร้างข้อสอบข้อ {start_num}-{start_num+4} โดยมีคำถามครอบคลุม: Title/Main Idea, TRUE/FALSE, Synonym, และ Pronoun Reference\n"
         for item in ans_reading:
             prompt += f"- ข้อที่ {item['num']}: ล็อคเฉลยที่ [{item['key']}]\n"
-        prompt += "แสดงเฉลยรวมท้ายสุดพร้อมข้อความเต็มสไตล์ 'พี่เค็นพาทำ'"
+        
+        prompt += "\nกฎการแสดงผล:\n"
+        prompt += "1. เริ่มต้นทุกข้อด้วยคำว่า 'ข้อที่' ตามด้วยเลขข้อเท่านั้น (ห้ามใส่หัวข้อคำถามไว้หลังเลขข้อ)\n"
+        prompt += "2. แสดงเฉลยรวมท้ายสุดพร้อมเนื้อความเต็มสไตล์ 'พี่เค็นพาทำ' และอธิบายเหตุผลสั้นๆ"
         st.text_area("Copy Prompt:", value=prompt, height=400)
 
 # ----------------------------------------------------------------
@@ -168,8 +174,12 @@ elif menu == "4. Vocabulary Mastery":
             inputs_vocab.append({"num": q_num, "level": level, "ans": ans})
 
     if st.button("🚀 สร้าง Prompt Vocabulary", type="primary", use_container_width=True):
-        prompt = "จงสร้างข้อสอบคำศัพท์ Oxford 3000 (B1-B2) จำนวน 5 ข้อ (11-15)\n"
+        prompt = "จงสร้างข้อสอบคำศัพท์ Oxford 3000 (B1-B2) จำนวน 5 ข้อ (เลขข้อ 11-15)\n"
         for item in inputs_vocab:
-            prompt += f"- ข้อที่ {item['num']}: ระดับ [{item['level']}] ล็อคเฉลยที่ [{item['ans']}]\n"
-        prompt += "ห้ามโชว์เลเวลในตัวเลือก, เริ่มต้นทุกข้อด้วย 'ข้อที่', เฉลยรวมท้ายสุดพร้อมข้อความเต็ม"
+            prompt += f"- ข้อที่ {item['num']}: ระดับศัพท์ [{item['level']}] ล็อคเฉลยที่ [{item['ans']}]\n"
+        
+        prompt += "\nกฎการแสดงผล:\n"
+        prompt += "1. เริ่มต้นทุกข้อด้วยคำว่า 'ข้อที่' ตามด้วยเลขข้อเท่านั้น (ห้ามใส่ [CEFR] หรือหัวข้อเรื่องไว้หลังเลขข้อ)\n"
+        prompt += "2. ห้ามโชว์เลเวลคำศัพท์ในตัวเลือก\n"
+        prompt += "3. แสดงเฉลยรวมท้ายสุดพร้อมข้อความเต็มของคำตอบที่ถูกต้อง"
         st.text_area("Copy Prompt:", value=prompt, height=400)
