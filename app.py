@@ -4,9 +4,8 @@ import random
 # 1. ตั้งค่าหน้าจอ
 st.set_page_config(page_title="P'Ken Prompt Master", layout="wide")
 
-# ฟังก์ชันสำหรับ Shuffle เฉลย (แก้ไขให้ทำงานทันทีเมื่อกด)
+# ฟังก์ชันสำหรับ Shuffle เฉลย
 def shuffle_answers():
-    # สุ่มค่าใหม่ลงใน session_state โดยตรง
     for i in range(1, 26): 
         new_ans = random.choice(["a)", "b)", "c)", "d)"])
         st.session_state[f"ans_key_{i}"] = new_ans
@@ -61,7 +60,6 @@ if menu == "1. Conversation":
             word = st.text_input(f"คำที่เลือก", key=f"conv_w_{i}")
             cat = st.selectbox(f"วัดเรื่อง", categories_conv, key=f"conv_c_{i}")
             
-            # ดึงค่าจาก session_state
             current_val = st.session_state.get(f"ans_key_{q_num}", "a)")
             ans = st.selectbox(f"เฉลยข้อไหน", ["a)", "b)", "c)", "d)"], 
                                index=["a)", "b)", "c)", "d)"].index(current_val), 
@@ -158,7 +156,7 @@ elif menu == "3. Vocabulary Mastery":
         st.text_area("Copy Prompt:", value=prompt, height=400)
 
 # ----------------------------------------------------------------
-# เมนูที่ 4: Reading Comprehension (ปรับปรุงใหม่ตามสั่ง)
+# เมนูที่ 4: Reading Comprehension (แก้ใหม่ตามสั่ง!)
 # ----------------------------------------------------------------
 elif menu == "4. Reading Comprehension":
     st.title("📖 เมนูที่ 4: Reading Comprehension")
@@ -166,17 +164,17 @@ elif menu == "4. Reading Comprehension":
     topic = st.text_input("หัวข้อบทความ", placeholder="ใส่เรื่องที่ต้องการ...")
     start_num = 16 if "สั้น" in rtype else 21
     
-    st.subheader("ตั้งค่าคำถาม (ติ๊กข้อไหน AI จะสร้างเฉพาะประเภทนั้น)")
-    q_options = {
-        "ถามชื่อเรื่อง (Title)": st.checkbox("ถามชื่อเรื่อง (Title)", value=True),
-        "ถามวัตถุประสงค์/Main Idea": st.checkbox("ถามวัตถุประสงค์/Main Idea", value=False),
-        "ถามว่า 'ข้อใดผิด' (Which is FALSE?)": st.checkbox("ถาม 'ข้อใดผิด' (Which is FALSE?)", value=True),
-        "ถามว่า 'ข้อใดถูก' (Which is TRUE?)": st.checkbox("ถาม 'ข้อใดถูก' (Which is TRUE?)", value=True),
-        "ถามความหมายของคำศัพท์หรือ Synonym": st.checkbox("ถามศัพท์/Synonym", value=True),
-        "ถามว่า Pronoun ในเนื้อหาหมายถึงอะไร": st.checkbox("ถามความหมาย Pronoun", value=True)
-    }
+    st.subheader("ตั้งค่าคำถาม (ติ๊กข้อไหน AI จะสร้างประเภทนั้น 'แค่ข้อเดียว')")
     
-    questions_logic = [k for k, v in q_options.items() if v]
+    # ดึงค่าจาก checkbox
+    q_logic_map = {
+        "TITLE": st.checkbox("ถามชื่อเรื่อง (Title)", value=True),
+        "PURPOSE": st.checkbox("ถามวัตถุประสงค์ (Purpose/Main Idea)", value=False),
+        "FALSE": st.checkbox("ถาม 'ข้อใดผิด' (Incorrect/Except)", value=True),
+        "TRUE": st.checkbox("ถาม 'ข้อใดถูก' (True/Correct)", value=True),
+        "VOCAB": st.checkbox("ถามศัพท์ (Synonym/Meaning)", value=True),
+        "PRONOUN": st.checkbox("ถาม Reference (Pronoun)", value=True)
+    }
     
     st.divider()
     cols = st.columns(5)
@@ -192,27 +190,32 @@ elif menu == "4. Reading Comprehension":
             ans_reading.append({"num": q_current, "key": ans})
 
     if st.button("🚀 สร้าง Prompt Reading", type="primary", use_container_width=True):
-        prompt = f"### [COMMAND: STRICT INSTRUCTIONS]\n"
+        # สร้างรายการประเภทคำถามที่จะสั่ง AI
+        selected_types = [k for k, v in q_logic_map.items() if v]
+        
+        prompt = f"### [COMMAND: FINAL INSTRUCTIONS]\n"
         prompt += f"1. สร้างบทความภาษาอังกฤษ ({rtype}) เรื่อง: {topic}\n"
         prompt += f"2. สร้างข้อสอบ Multiple Choice จำนวน 5 ข้อ (ข้อ {start_num}-{start_num+4})\n\n"
         
-        prompt += "### [QUESTION TYPES LIMITATION]\n"
-        prompt += "ให้เลือกสร้างคำถาม 'เฉพาะ' ประเภทที่ระบุไว้ดังนี้เท่านั้น **หากประเภทใดไม่ได้ระบุ ห้ามนำมาสร้างเด็ดขาด**:\n"
-        if not questions_logic:
-            prompt += "- (เน้นถามเจาะจงเนื้อหาทั่วไป)\n"
-        for logic in questions_logic:
-            prompt += f"- {logic}\n"
+        prompt += "### [DISTRIBUTION RULES - สำคัญมาก]\n"
+        prompt += "- สำหรับประเภทคำถามที่ระบุข้างล่างนี้ ให้สร้าง **'ประเภทละ 1 ข้อเท่านั้น'** ห้ามสร้างซ้ำ\n"
+        for q_type in selected_types:
+            if q_type == "TITLE": prompt += "  - ถามชื่อเรื่องที่เหมาะสมที่สุด (Best Title)\n"
+            if q_type == "PURPOSE": prompt += "  - ถามวัตถุประสงค์หลัก (Main Purpose/Intent)\n"
+            if q_type == "FALSE": prompt += "  - ถามข้อที่ไม่ถูกต้อง (ใช้คำถามหลากหลายเช่น: Which is NOT true?, Which is incorrect?, ...except...?)\n"
+            if q_type == "TRUE": prompt += "  - ถามข้อที่ถูกต้อง (According to the text, which is true?)\n"
+            if q_type == "VOCAB": prompt += "  - ถามความหมายศัพท์หรือ Synonym จากในเนื้อหา\n"
+            if q_type == "PRONOUN": prompt += "  - ถามว่า Pronoun (เช่น it, they, this) หมายถึงอะไร\n"
         
-        prompt += "\n### [GENERATE RULES]\n"
-        prompt += "- **Chronological Order:** ให้เรียงลำดับคำถามตามเนื้อหาที่ปรากฏในบทความจากบนลงล่างเสมอ\n"
-        prompt += "- **Specific Context:** ให้ถามเจาะลึกลงไปในรายละเอียดของเนื้อความ (Specific Details) ไม่ถามกว้างจนเกินไป\n"
+        prompt += f"\n- **จำนวนข้อที่เหลือจนครบ 5 ข้อ:** ให้สร้างคำถามแบบ 'Specific Detail' (ถามเจาะจงข้อมูลเชิงลึกในเนื้อหา) เพื่อทดสอบความเข้าใจ\n"
+        prompt += "- **Chronological Order:** เรียงลำดับคำถามตามการปรากฏของเนื้อหาในบทความ (ยกเว้นข้อ Title/Purpose ให้วางตำแหน่งที่เหมาะสม)\n"
         
         prompt += "\n### [ANSWER KEY LOCKING]\n"
         for item in ans_reading:
-            prompt += f"- ข้อที่ {item['num']}: คำตอบที่ถูกต้องคือตัวเลือก [{item['key']}]\n"
+            prompt += f"- ข้อที่ {item['num']}: คำตอบที่ถูกต้องคือ [{item['key']}]\n"
         
-        prompt += "\n### [FORMATTING & OUTPUT]\n"
-        prompt += "1. เริ่มต้นทุกข้อด้วยคำว่า 'ข้อที่ [เลขข้อ]' (ห้ามใส่ชื่อประเภทคำถามหรือหัวข้อเรื่อง)\n"
-        prompt += "2. แสดงเฉลยรวมไว้ท้ายสุด พร้อมสรุปเนื้อความเต็มของข้อที่ถูก และอธิบายเหตุผลภาษาไทยสไตล์ 'พี่เค็นพาทำ'\n"
+        prompt += "\n### [FORMATTING]\n"
+        prompt += "1. เริ่มต้นทุกข้อด้วย 'ข้อที่ [เลขข้อ]' เท่านั้น (ห้ามมีหัวข้อประเภทคำถาม)\n"
+        prompt += "2. แสดงเฉลยรวมท้ายสุด พร้อมเนื้อความเต็มของคำตอบที่ถูกต้อง และอธิบายเหตุผลสั้นๆ เป็นภาษาไทยสไตล์ 'พี่เค็นพาทำ'\n"
         
         st.text_area("Copy Prompt:", value=prompt, height=450)
